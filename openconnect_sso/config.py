@@ -3,8 +3,6 @@ from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 
 import attr
-import keyring
-import keyring.errors
 import pyotp
 import structlog
 import toml
@@ -106,21 +104,7 @@ def get_default_auto_fill_rules():
 @attr.s
 class Credentials(ConfigNode):
     username = attr.ib()
-
-    @property
-    def password(self):
-        try:
-            return keyring.get_password(APP_NAME, self.username)
-        except keyring.errors.KeyringError:
-            logger.info("Cannot retrieve saved password from keyring.")
-            return ""
-
-    @password.setter
-    def password(self, value):
-        try:
-            keyring.set_password(APP_NAME, self.username, value)
-        except keyring.errors.KeyringError:
-            logger.info("Cannot save password to keyring.")
+    password = attr.lib()
 
     @property
     def totp(self):
